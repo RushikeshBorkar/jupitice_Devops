@@ -1,3 +1,4 @@
+# To run this -->sudo bash newdevcomplete.sh <remote_db_passwd> <localdb_db_passwd>
 #!/bin/bash
 
 apt update -y
