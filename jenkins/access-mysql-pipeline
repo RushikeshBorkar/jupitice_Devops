@@ -1,0 +1,39 @@
+#!/bin/bash
+
+echo "Action: $ACTION"
+echo "Database: $DATABASE"
+echo "Username: $USERNAME"
+echo "Permissions: $PERMISSIONS"
+echo "MySQL Host: $MYSQL_HOST"
+echo "MySQL Port: $MYSQL_PORT"
+echo "Jira ID: $JIRA_ID"
+
+# Validate parameters
+if [ -z "$PERMISSIONS" ] || [-z "$JIRA_ID" ]; then
+    echo "ERROR: No permissions selected"
+    exit 1
+fi
+
+# MySQL credentials (set these as Jenkins credentials)
+MYSQL_USER="root"
+MYSQL_PASSWORD="$passwd"
+
+if [ "$ACTION" == "GRANT" ]; then
+    mysql -h $MYSQL_HOST -P 3306 -u $MYSQL_USER -p$MYSQL_PASSWORD << EOF
+    GRANT $PERMISSIONS ON $DATABASE.* TO '$USERNAME'@'%';
+    FLUSH PRIVILEGES;
+    SHOW GRANTS FOR '$USERNAME'@'%';
+EOF
+
+elif [ "$ACTION" == "REVOKE" ]; then
+    mysql -h $MYSQL_HOST -P 3306 -u $MYSQL_USER -p$MYSQL_PASSWORD << EOF
+    REVOKE $PERMISSIONS ON $DATABASE.* FROM '$USERNAME'@'%';
+    FLUSH PRIVILEGES;
+    SHOW GRANTS FOR '$USERNAME'@'%';
+EOF
+else
+    echo "ERROR: Invalid action specified"
+    exit 1
+fi
+
+echo "Operation completed successfully."
