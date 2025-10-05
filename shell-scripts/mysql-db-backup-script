@@ -1,0 +1,20 @@
+#!/bin/bash
+set -e
+
+DATABASE_NAME=db_name
+DATABASE_USERNAME=root
+DATABASE_HOST=hostip
+GCP_BUCKET_ADDRESS=gs://database_backup_jupitice/artemis_masterclean_test
+
+TIMESTAMP=$(date '+%d-%m-%Y_%H-%M-%S')
+FILENAME="artemis_masterclean_test${TIMESTAMP}.sql.gz"
+
+echo "Export Dump"
+mysqldump -h $DATABASE_HOST -u $DATABASE_USERNAME -p"3pZBY1Ya6unoF1kF" $DATABASE_NAME | gzip > "$FILENAME"
+
+if [ -e "$FILENAME" ]; then
+    gcloud storage cp "$FILENAME" $GCP_BUCKET_ADDRESS
+    rm "$FILENAME"
+else
+    echo "Dump not worked for meater-clean"
+fi
