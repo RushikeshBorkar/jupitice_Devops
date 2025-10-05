@@ -1,0 +1,9 @@
+/etc/mysql/mysql.conf.d/mysqld.cnf
+
+Create a file (e.g., /etc/mysql/init.sql) with:
+
+SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+
+/etc/mysql/mysql.conf.d/mysqld.cnf
+[mysqld]
+init_file = /etc/mysql/init.sql
