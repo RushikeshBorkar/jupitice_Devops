@@ -1,0 +1,390 @@
+New Developer System setup on Ubuntu, Mac OS
+
+
+
+apache2
+
+sudo apt update && sudo apt upgrade -y
+sudo apt install apache2 -y
+sudo systemctl status apache2
+
+
+Mysql
+
+sudo apt install mysql-server -y
+sudo mysql_secure_installation
+Follow the prompts (choose a root password, remove anonymous
+users, disallow remote root login, etc.).
+
+install PHP
+
+sudo apt install php libapache2-mod-php php-mysql php-cli
+php-common php-json php-zip php-gd php-mbstring php-curl php-xml php-bcmath -y
+Php -v
+
+Phpmyadmin
+
+phpMyAdmin is a free software tool written in PHP that is intended to handle the administration of a MySQL or MariaDB database server. You can use phpMyAdmin to perform most administration tasks, including creating a database, running queries, and adding user accounts.
+
+cd /usr/share
+sudo wget
+https://www.phpmyadmin.net/downloads/phpMyAdmin-latest-all-languages.tar.gz
+
+sudo tar xvf phpMyAdmin-latest-all-languages.tar.gz
+
+sudo mv phpMyAdmin-*-all-languages phpmyadmin
+
+sudo rm phpMyAdmin-latest-all-languages.tar.gz
+
+–Create phpMyAdmin config:
+
+sudo mkdir /usr/share/phpmyadmin/tmp
+
+sudo chown -R www-data:www-data /usr/share/phpmyadmin/tmp
+
+-- Configure Apache for phpMyAdmin
+Create a config file:
+sudo vim /etc/apache2/conf-available/phpmyadmin.conf
+Paste this:
+---------------------------------------------------------------------------------------
+
+
+Alias /phpmyadmin /usr/share/phpmyadmin
+<Directory /usr/share/phpmyadmin>
+Options FollowSymLinks
+DirectoryIndex index.php
+AllowOverride All
+Require all granted
+</Directory>
+
+<Directory /usr/share/phpmyadmin/setup/lib>
+Require all denied
+</Directory>
+
+
+-------------------------------------------
+
+
+Save (CTRL+O, ENTER, CTRL+X).
+Enable config and reload Apache:
+sudo a2enconf phpmyadmin
+sudo systemctl reload apache2
+
+sudo mysql
+ALTER USER 'root'@'localhost' IDENTIFIED WITH
+mysql_native_password BY 'YourNewPassword';
+
+FLUSH PRIVILEGES;
+
+Exit;
+Access phpMyAdmin
+Open browser:
+http://localhost/phpmyadmin
+
+
+
+
+How to remove warning in php
+vim /usr/share/nginx/html/phpmyadmin/libraries/config.default.php
+And change $cfg['SendErrorReports'] = 'ask'; to
+$cfg['SendErrorReports'] = 'never';
+
+
+How to remove 413 file too large
+
+vi /etc/nginx/nginx.conf
+add 1 line 
+client_max_body_size 200M; in http
+and in /etc/php/8.1/fpm/php.ini
+Post_max_size = 200M
+upload_max_file_size = 200M
+
+
+How to take dump from master to any server:
+
+Mysql dump command:
+gunzip < artemis_demo_test.sql.gz | mysql -u root -p -h localhost db_name
+
+
+
+
+
+
+
+3. STEPS TO SETUP Redis
+
+Redis is an open source (BSD licensed), in-memory data structure store used as a database, cache, message broker, and streaming engine. Redis provides data structures such as strings, hashes, lists, sets, sorted sets with range queries, bitmaps, hyperloglogs, geospatial indexes, and streams.
+
+Ubuntu:
+sudo apt update
+sudo apt install redis-server
+
+Mac:
+brew install redis
+brew services start redis
+
+ STEPS TO SETUP Node18 
+
+
+Node allows developers to write JavaScript code that runs directly in a computer process itself instead of in a browser. Node can, therefore, be used to write server-side applications with access to the operating system, file system, and everything else required to build fully-functional applications.
+
+
+NVM (Ubuntu and Mac)
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+or
+wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+nvm install node
+
+   nvm install node@18.0.0
+   node -v
+   ls
+
+Steps to Install PM2:
+
+Advanced process manager for production Node.js applications. Load balancer, logs facility, startup script, micro service management, at a glance.
+
+npm install pm2 -g (for both mac and ubuntu)
+
+
+7. Gitlab setup:
+
+
+Ubuntu:
+
+sudo apt update   
+apt install git                    
+
+Mac:
+brew install git
+Clone the Repository:
+
+Clone using ssh:
+# git clone <repository-ssh-url>
+
+Clone using HTTPS
+# git clone <repository-https-url>
+
+
+Set Up SSH Keys (For SSH Cloning)
+
+Ssh-keygen 
+cat ~/.ssh.rsa.pub
+copy output of cat command and paste in next step (add the ssh key to gitlab)
+cat ~/.ssh/id_rsa.pub
+copy output of cat 
+
+Add the SSH Key to GitLab:
+
+Log in to GitLab, go to User Settings → SSH Keys, and paste the copied key
+
+
+
+ Reach out to any  Developer or your reporting manager for Code Walkthrough for API and front end
+
+
+============================================================================
+
+1. STEPS TO SETUP NGINX
+
+
+NGINX is open source software for web serving, reverse proxying, caching, load balancing, media streaming, and more. It started out as a web server designed for maximum performance and stability.
+
+Ubuntu:
+
+sudo apt update
+sudo apt install nginx
+
+Mac:
+brew install nginx
+brew services start nginx
+
+Nginx configuration:
+Run following Path: /etc/nginx
+Note: path may vary and it depends on installation directory (use # “which nginx” for checking directory path)
+
+server {
+server_name domain name;
+location / {
+	resolver 8.8.8.8 ipv6=off;
+	proxy_pass http://localhost:XXXX;
+   proxy_http_version 1.1;
+	proxy_set_header Upgrade $http_upgrade;
+	proxy_set_header Connection "upgrade";
+	proxy_read_timeout 600;
+	proxy_set_header  X-Forwarded-For $remote_addr;
+   set $args $args&host=$http_host;
+	proxy_set_header Host  	$host;
+	proxy_set_header X-Forwarded-Port $server_port;
+   
+ }
+
+}
+
+
+
+
+2. STEPS TO SETUP Mysql 8
+
+MySQL is an open source relational database management system. eg for WordPress sites, that means it helps you store all your blog posts, users, plugin information, etc. It stores that information in separate “tables” and connects it with “keys”, which is why it's relational.
+
+Steps for Ubuntu:
+
+sudo apt install mysql-server
+mysql --version
+sudo mysql_secure_installation
+sudo systemctl status mysql
+sudo mysql -u root
+
+Steps for Mac:
+
+brew install mysql
+brew services start mysql
+mysql --version
+Mysql_secure_installation
+
+
+
+
+
+
+3. STEPS TO SETUP Redis
+
+Redis is an open source (BSD licensed), in-memory data structure store used as a database, cache, message broker, and streaming engine. Redis provides data structures such as strings, hashes, lists, sets, sorted sets with range queries, bitmaps, hyperloglogs, geospatial indexes, and streams.
+
+Ubuntu:
+sudo apt update
+sudo apt install redis-server
+
+Mac:
+brew install redis
+brew services start redis
+
+
+
+
+4. Steps to Install PHP:
+PHP is a general-purpose scripting language geared towards web development.
+
+sudo apt install --no-install-recommends php8.1
+
+sudo apt-get install -y php8.1-cli php8.1-common php8.1-mysql php8.1-zip php8.1-gd php8.1-mbstring php8.1-curl php8.1-xml php8.1-bcmath
+
+php -v
+
+
+5. STEPS TO SETUP Node18 
+
+
+Node allows developers to write JavaScript code that runs directly in a computer process itself instead of in a browser. Node can, therefore, be used to write server-side applications with access to the operating system, file system, and everything else required to build fully-functional applications.
+
+
+NVM (Ubuntu and Mac)
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+or
+wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+nvm install node
+
+   nvm install node@18.0.0
+   node -v
+   ls
+
+Steps to Install PM2:
+
+Advanced process manager for production Node.js applications. Load balancer, logs facility, startup script, micro service management, at a glance.
+
+npm install pm2 -g (for both mac and ubuntu)
+
+
+
+
+
+
+
+
+6. STEPS TO SETUP Phpmyadmin (Ubuntu and Mac)
+
+phpMyAdmin is a free software tool written in PHP that is intended to handle the administration of a MySQL or MariaDB database server. You can use phpMyAdmin to perform most administration tasks, including creating a database, running queries, and adding user accounts.
+
+https://www.phpmyadmin.net/downloads/
+https://files.phpmyadmin.net/phpMyAdmin/5.2.2/phpMyAdmin-5.2.2-all-languages.zip
+
+The above url works in both Ubuntu and Mac.
+Set phpmyadmin location in nginx configuration file.
+Ubuntu → /etc/nginx/…
+Mac → /usr/share/nginx/…
+This is the default location and might be changed. 
+To track your location, use which nginx.
+
+
+How to remove warning in php
+vim /usr/share/nginx/html/phpmyadmin/libraries/config.default.php
+And change $cfg['SendErrorReports'] = 'ask'; to
+$cfg['SendErrorReports'] = 'never';
+
+
+How to remove 413 file too large
+
+vi /etc/nginx/nginx.conf
+add 1 line 
+client_max_body_size 200M; in http
+and in /etc/php/8.1/fpm/php.ini
+Post_max_size = 200M
+upload_max_file_size = 200M
+max_execution_time = 300
+
+
+How to take dump from master to any server:
+
+Mysql dump command:
+gunzip < artemis_demo_test.sql.gz | mysql -u root -p -h localhost db_name
+
+
+
+
+
+
+7. Gitlab setup:
+
+
+Ubuntu:
+
+sudo apt update   
+apt install git                    
+
+Mac:
+brew install git
+Clone the Repository:
+
+Clone using ssh:
+# git clone <repository-ssh-url>
+
+Clone using HTTPS
+# git clone <repository-https-url>
+
+
+Set Up SSH Keys (For SSH Cloning)
+
+ssh-keygen
+cat ~/.ssh.rsa.pub
+copy output of cat command and paste in next step (add the ssh key to gitlab)
+cat ~/.ssh/id_rsa.pub
+copy output of cat 
+
+Add the SSH Key to GitLab:
+
+Log in to GitLab, go to User Settings → SSH Keys, and paste the copied key
+
+
+
+8. Reach out to any Sr. Developer or your reporting manager for Code Walkthrough for API and front end
+
+
+
