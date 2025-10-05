@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# Exit immediately on error
+set -e
+
+# ---- Configuration passed from Jenkins ----
+DB_HOST="pma-test.jupitice.com"
+DB_USER="root"  # Change if needed
+DB_PASSWORD=""
+
+# These should be Jenkins Choice Parameters
+SOURCE_USER="$1"
+DEST_USER="$2"
+
+# ---- Derived variables ----
+SOURCE_DB="artemis_${SOURCE_USER}_test"
+DEST_DB="artemis_${DEST_USER}_test"
+DUMP_FILE="/tmp/${SOURCE_DB}_dump.sql"
+
+# ---- Validations ----
+if [[ -z "$SOURCE_USER" || -z "$DEST_USER" ]]; then
+  echo "Usage: $0 <SOURCE_USER> <DEST_USER>"
+  exit 1
+fi
+
+echo "Starting dump from $SOURCE_DB to $DEST_DB..."
+
+# ---- Step 1: Dump the source database ----
+echo "Dumping database: $SOURCE_DB"
+mysqldump -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASSWORD" "$SOURCE_DB" > "$DUMP_FILE"
+
+# ---- Step 2: Drop destination DB if exists ----
+echo "Dropping destination database if it exists: $DEST_DB"
+mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASSWORD" -e "DROP DATABASE IF EXISTS \`${DEST_DB}\`;"
+
+# ---- Step 3: Create destination DB ----
+echo "Creating destination database: $DEST_DB"
+mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASSWORD" -e "CREATE DATABASE \`${DEST_DB}\`;"
+
+# ---- Step 4: Import the dump into the destination ----
+echo "Importing dump into $DEST_DB"
+mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASSWORD" "$DEST_DB" < "$DUMP_FILE"
+
+# ---- Done ----
+echo "Database migration from $SOURCE_DB to $DEST_DB completed successfully."
+
+echo "Removing temporary dump file: $DUMP_FILE"
+rm -f "$DUMP_FILE"
