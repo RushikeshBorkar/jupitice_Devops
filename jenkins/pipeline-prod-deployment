@@ -1,0 +1,17 @@
+#!/bin/bash
+
+cd /root/artemis/
+git stash
+git fetch
+git checkout "$BRANCH_NAME"
+git reset --hard "origin/$BRANCH_NAME"
+
+
+cat /root/artemis-399212-ee845c76f9ff.json | docker login -u _json_key --password-stdin https://asia-south1-docker.pkg.dev
+docker build -t artemis-prod .
+docker tag artemis-prod:latest asia-south1-docker.pkg.dev/artemis-399212/artemis-prod/artemis-prod:latest
+docker push asia-south1-docker.pkg.dev/artemis-399212/artemis-prod/artemis-prod:latest
+
+
+echo "deploy on K8"
+kubectl rollout restart deployment artemis-deployment -n artemis
