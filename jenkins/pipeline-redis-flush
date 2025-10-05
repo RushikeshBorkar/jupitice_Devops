@@ -1,0 +1,6 @@
+#!/bin/bash
+set +x
+
+echo "Build Started.............."
+
+sudo su -c "redis-cli -h 11.82.162.5 -n 2 flushdb" -s /bin/sh
