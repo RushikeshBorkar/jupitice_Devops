@@ -1,0 +1,22 @@
+#!/bin/bash
+set +x
+
+echo "Build Started.............."
+
+
+if [ -z "${public_ssh_key}"  ] || [ -z "${user_email_id}" || [ -z "${Jira_ID}"];
+then
+echo "${red}Branch name cannot be empty..Exiting ${reset}"
+exit 1
+fi      
+echo ${user_email_id}
+
+auth_file="/home/${user_name}/.ssh/authorized_keys"
+
+if ! grep -qxF "${public_ssh_key}" "$auth_file"; then
+  printf "\n# %s\n%s\n" "${user_email_id}" "${public_ssh_key}" >> "$auth_file"
+  echo " Key added for ${user_email_id}"
+else
+  echo " Key already exists for ${user_email_id}, skipping."
+fi
+
