@@ -1,0 +1,27 @@
+#!/bin/bash
+set +x
+
+echo "Build Started.............."
+
+
+if [ -z "${BRANCH_MENU}" ]
+then
+echo "${red}Branch name cannot be empty..Exiting ${reset}"
+exit 1
+fi      
+echo ${BRANCH_MENU}
+if [ "${environment}" = "jupitice" ]; then
+ cd "/home/${environment}/jupitice-website-nextjs/jupitice-web"
+elif [ "${environment}" = "jupiticeodr" ]; then 
+ cd "/home/${environment}/jupitice-website-nextjs/jupitice-odr"
+else
+ cd "/home/${environment}/jupitice-website-nextjs/${environment}"
+fi
+sudo su -c "git stash" -s /bin/sh ${environment}
+sudo su -c "git fetch" -s /bin/sh ${environment}
+sudo su -c "git checkout ${BRANCH_MENU}" -s /bin/sh ${environment}
+sudo su -c "git reset --hard origin/${BRANCH_MENU}" -s /bin/sh ${environment}
+sudo su -c "rm -rf ~/.npmrc" -s /bin/sh ${environment}
+sudo su -c "npm install" -s /bin/sh ${environment}
+sudo su -c "npm run build" -s /bin/sh ${environment}
+sudo su -c "/usr/bin/pm2 restart ${environment} || /usr/bin/pm2 start npm --name ${environment} -- run start" -s /bin/sh ${environment}
