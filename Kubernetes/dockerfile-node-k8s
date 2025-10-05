@@ -1,0 +1,30 @@
+FROM node:23-alpine
+
+ENV UNO_URL https://raw.githubusercontent.com/dagwieers/unoconv/master/unoconv
+
+RUN apk --no-cache add bash mc git \
+            curl \
+            util-linux \
+            libreoffice-common \
+            libreoffice-writer \
+            ttf-droid \
+            ttf-dejavu \
+            ttf-freefont \
+            ttf-liberation \
+        && curl -Ls $UNO_URL -o /usr/local/bin/unoconv \
+        && chmod +x /usr/local/bin/unoconv \
+        && ln -sf /usr/bin/python3 /usr/bin/python \
+        && apk del curl \
+        && apk add redis \
+        && rm -rf /var/cache/apk/*
+
+
+RUN echo "65.1.126.41 orderer.blockchain.jupitice.com" >> /etc/hosts \
+        && echo "65.1.126.41 peer0.jupiticeOrg.blockchain.jupitice.com" >> /etc/hosts
+
+WORKDIR /usr/src/app
+COPY package*.json ./
+RUN npm install
+COPY . .
+
+CMD ["sh", "-c", "npm start --env=production"]
