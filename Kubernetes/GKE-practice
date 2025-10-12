@@ -37,6 +37,12 @@ sudo apt-get install -y kubectl
 curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 helm version
 
+# cluster create
+gcloud container clusters create my-gke-cluster \
+  --zone=asia-south1-c \
+  --num-nodes=2 \
+  --machine-type=e2-standard-4
+
 # ingress controller install
 
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
