@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: artemis-deployment
+  namespace: artemis
+  labels:
+    app: artemis-deployment
+spec:
+  selector:
+    matchLabels:
+      name: artemis-deployment
+      app: artemis-deployment
+  template:
+    metadata:
+      name: artemis-deployment
+      labels:
+        name: artemis-deployment
+        app: artemis-deployment
+    spec:
+      containers:
+      - name: artemis-deployment
+        image: artemis-deployment-gke
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "5120Mi"
+            cpu: "1400m"
+          requests:
+            memory: "5120Mi"
+            cpu: "1200m"
+        ports:
+          - containerPort: 80
